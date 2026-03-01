@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>কর্মী ব্যবস্থাপনা সিস্টেম</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Tiro+Bangla&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #1a3a5c;
+    --primary-light: #2a5298;
+    --accent: #e8a020;
+    --accent-light: #f5c842;
+    --bg: #f0f4f8;
+    --card: #ffffff;
+    --text: #1a2332;
+    --text-muted: #6b7c93;
+    --border: #d1dce8;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --shadow: 0 2px 12px rgba(26,58,92,0.10);
+    --shadow-lg: 0 8px 32px rgba(26,58,92,0.16);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Hind Siliguri', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white; padding: 0 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px; position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 4px 20px rgba(26,58,92,0.3);
+  }
+  .header-logo { font-family: 'Tiro Bangla', serif; font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+  .header-logo span { color: var(--accent-light); }
+  .header-nav { display: flex; gap: 8px; }
+  .nav-btn {
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+    color: white; padding: 8px 18px; border-radius: 8px; cursor: pointer;
+    font-family: 'Hind Siliguri', sans-serif; font-size: 14px; font-weight: 500;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover, .nav-btn.active { background: var(--accent); border-color: var(--accent); }
+
+  /* MAIN */
+  .main { max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
+
+  /* PAGE */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--card); border-radius: 14px; padding: 24px;
+    box-shadow: var(--shadow); border: 1px solid var(--border); margin-bottom: 24px;
+  }
+  .card-title {
+    font-size: 17px; font-weight: 700; color: var(--primary); margin-bottom: 18px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title::before { content: ''; width: 4px; height: 20px; background: var(--accent); border-radius: 2px; display: block; }
+
+  /* STATS ROW */
+  .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--card); border-radius: 12px; padding: 20px;
+    box-shadow: var(--shadow); border: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .stat-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+  .stat-value { font-size: 26px; font-weight: 700; color: var(--primary); }
+  .stat-value.accent { color: var(--accent); }
+  .stat-value.success { color: var(--success); }
+  .stat-value.danger { color: var(--danger); }
+
+  /* FORM */
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 13px; font-weight: 600; color: var(--text-muted); }
+  .form-group input, .form-group select, .form-group textarea {
+    border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 14px;
+    font-family: 'Hind Siliguri', sans-serif; font-size: 14px; color: var(--text);
+    background: #f8fafc; transition: border-color 0.2s;
+    outline: none;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--primary-light); background: white;
+  }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+
+  /* BUTTONS */
+  .btn {
+    padding: 10px 22px; border-radius: 8px; border: none; cursor: pointer;
+    font-family: 'Hind Siliguri', sans-serif; font-size: 14px; font-weight: 600;
+    transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: var(--shadow); }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-accent:hover { background: var(--accent-light); color: var(--text); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text-muted); }
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-sm { padding: 6px 14px; font-size: 12px; }
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+
+  /* TABLE */
+  .table-wrapper { overflow-x: auto; border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--primary); color: white; }
+  th { padding: 12px 16px; text-align: left; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  td { padding: 12px 16px; font-size: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f0f4f8; }
+  .tag {
+    display: inline-block; padding: 3px 10px; border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+  }
+  .tag-active { background: #d4f5e9; color: #27ae60; }
+  .tag-inactive { background: #fde8e8; color: #e74c3c; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white; border-radius: 16px; max-width: 720px; width: 100%;
+    max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg);
+  }
+  .modal-header {
+    padding: 20px 24px 0; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; background: white; z-index: 1; border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+  }
+  .modal-title { font-size: 18px; font-weight: 700; color: var(--primary); }
+  .modal-close {
+    width: 34px; height: 34px; border-radius: 50%; border: none;
+    background: #f0f4f8; cursor: pointer; font-size: 18px; color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .modal-close:hover { background: #fde8e8; color: var(--danger); }
+  .modal-body { padding: 20px 24px 24px; }
+
+  /* PROFILE */
+  .profile-header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: 14px; padding: 28px 32px; color: white; margin-bottom: 24px;
+    display: flex; align-items: center; gap: 24px;
+  }
+  .avatar {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: var(--accent); display: flex; align-items: center; justify-content: center;
+    font-size: 28px; font-weight: 700; color: white; flex-shrink: 0;
+    border: 3px solid rgba(255,255,255,0.3);
+  }
+  .profile-name { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .profile-meta { font-size: 14px; opacity: 0.85; display: flex; gap: 16px; flex-wrap: wrap; }
+  .profile-meta span { display: flex; align-items: center; gap: 4px; }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--primary); font-weight: 600; cursor: pointer; margin-bottom: 20px;
+    background: none; border: none; font-family: 'Hind Siliguri', sans-serif;
+    font-size: 14px; padding: 8px 0;
+  }
+  .back-btn:hover { color: var(--primary-light); }
+
+  /* SALARY RECORD */
+  .salary-month-card {
+    border: 1.5px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 14px;
+  }
+  .salary-month-header {
+    padding: 14px 18px; background: #f8fafc; display: flex; align-items: center;
+    justify-content: space-between; cursor: pointer; transition: background 0.2s;
+  }
+  .salary-month-header:hover { background: #eef2f7; }
+  .month-label { font-weight: 700; font-size: 15px; color: var(--primary); }
+  .month-net { font-size: 15px; font-weight: 700; color: var(--success); }
+  .month-status { font-size: 12px; }
+  .salary-month-body { padding: 18px; display: none; background: white; }
+  .salary-month-body.open { display: block; }
+  .salary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .salary-field { display: flex; flex-direction: column; gap: 4px; }
+  .salary-field label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+  .salary-field input {
+    border: 1.5px solid var(--border); border-radius: 7px; padding: 8px 12px;
+    font-family: 'Hind Siliguri', sans-serif; font-size: 14px; color: var(--text);
+    background: #f8fafc; outline: none;
+  }
+  .salary-field input:focus { border-color: var(--primary-light); background: white; }
+  .salary-field input:read-only { background: #eef2f7; color: var(--text-muted); cursor: not-allowed; }
+  .salary-divider { border: none; border-top: 1px dashed var(--border); margin: 12px 0; }
+  .pbf-toggle { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .toggle-switch {
+    width: 44px; height: 24px; background: #ccc; border-radius: 12px; position: relative;
+    cursor: pointer; transition: background 0.3s; flex-shrink: 0;
+  }
+  .toggle-switch.on { background: var(--success); }
+  .toggle-switch::after {
+    content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%;
+    background: white; top: 3px; left: 3px; transition: transform 0.3s;
+  }
+  .toggle-switch.on::after { transform: translateX(20px); }
+
+  /* PRINT */
+  @media print {
+    .no-print { display: none !important; }
+    body { background: white; }
+    .header { display: none !important; }
+    .main { padding: 0; max-width: 100%; }
+
+    /* সব পেজ লুকাও */
+    .page { display: none !important; }
+
+    /* শুধু slip পেজ দেখাও */
+    #page-slip { display: block !important; }
+    #page-slip .back-btn { display: none !important; }
+    #page-slip .btn-row { display: none !important; }
+
+    .slip-box { border: 2px solid #1a3a5c !important; }
+    .slip-table th { background: #1a3a5c !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .slip-table tr.total-row td { background: #f0f4f8 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  /* SALARY SLIP */
+  .slip-box {
+    border: 2px solid var(--primary); border-radius: 12px; padding: 28px; background: white;
+  }
+  .slip-title { text-align: center; margin-bottom: 20px; }
+  .slip-title h2 { font-size: 20px; color: var(--primary); font-weight: 700; }
+  .slip-title p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  .slip-info { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+  .slip-info-item { font-size: 13px; }
+  .slip-info-item span { font-weight: 600; }
+  .slip-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+  .slip-table th { background: var(--primary); color: white; padding: 10px 14px; font-size: 13px; text-align: left; }
+  .slip-table td { padding: 9px 14px; font-size: 13px; border-bottom: 1px solid var(--border); }
+  .slip-table tr.total-row td { font-weight: 700; background: #f0f4f8; border-top: 2px solid var(--primary); }
+  .slip-footer { text-align: center; font-size: 12px; color: var(--text-muted); margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border); }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .header { padding: 0 16px; }
+    .header-logo { font-size: 16px; }
+    .main { padding: 16px 12px; }
+    .profile-header { flex-direction: column; text-align: center; padding: 20px; }
+    .profile-meta { justify-content: center; }
+  }
+
+  /* Empty state */
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; }
+
+  /* Notification */
+  .notif {
+    position: fixed; bottom: 24px; right: 24px; z-index: 999;
+    background: var(--primary); color: white; padding: 14px 22px;
+    border-radius: 10px; font-size: 14px; font-weight: 500;
+    box-shadow: var(--shadow-lg); transform: translateY(100px);
+    transition: transform 0.3s; pointer-events: none;
+  }
+  .notif.show { transform: translateY(0); }
+  .notif.success { background: var(--success); }
+  .notif.danger { background: var(--danger); }
+
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: gap; gap: 10px; }
+  .section-title { font-size: 17px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content: ''; width: 4px; height: 20px; background: var(--accent); border-radius: 2px; display: block; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header no-print">
+  <div class="header-logo">কর্মী ব্যবস্থাপনা <span>সিস্টেম</span></div>
+  <div class="header-nav">
+    <button class="nav-btn active" onclick="showPage('dashboard')">📋 ড্যাশবোর্ড</button>
+    <button class="nav-btn" onclick="showPage('add-employee')">➕ নতুন কর্মী</button>
+    <button class="nav-btn" onclick="window.print()">🖨️ প্রিন্ট</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- DASHBOARD PAGE -->
+  <div id="page-dashboard" class="page active">
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card"><div class="stat-label">মোট কর্মী</div><div class="stat-value" id="stat-total">0</div></div>
+      <div class="stat-card"><div class="stat-label">সক্রিয় কর্মী</div><div class="stat-value success" id="stat-active">0</div></div>
+      <div class="stat-card"><div class="stat-label">মোট অপরিশোধিত বেতন</div><div class="stat-value danger" id="stat-unpaid">৳০</div></div>
+      <div class="stat-card"><div class="stat-label">মোট প্রভিডেন্ট ফান্ড</div><div class="stat-value accent" id="stat-pf">৳০</div></div>
+    </div>
+
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">কর্মী তালিকা</div>
+        <input type="text" placeholder="🔍 নাম বা পদবি খুঁজুন..." oninput="filterEmployees(this.value)"
+          style="padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:13px;outline:none;width:220px;">
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>নাম</th>
+              <th>পদবি</th>
+              <th>যোগদান</th>
+              <th>প্রভিডেন্ট ফান্ড</th>
+              <th>অপরিশোধিত বেতন</th>
+              <th>অবস্থা</th>
+              <th>অ্যাকশন</th>
+            </tr>
+          </thead>
+          <tbody id="employee-table-body">
+            <tr><td colspan="8"><div class="empty-state"><div class="icon">👥</div><p>কোনো কর্মী যোগ করা হয়নি</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD EMPLOYEE PAGE -->
+  <div id="page-add-employee" class="page">
+    <div class="card">
+      <div class="card-title">নতুন কর্মী যোগ করুন</div>
+      <div class="form-grid">
+        <div class="form-group"><label>পূর্ণ নাম *</label><input type="text" id="emp-name" placeholder="কর্মীর নাম লিখুন"></div>
+        <div class="form-group"><label>পদবি *</label><input type="text" id="emp-position" placeholder="পদবি লিখুন"></div>
+        <div class="form-group"><label>বিভাগ</label><input type="text" id="emp-department" placeholder="বিভাগের নাম"></div>
+        <div class="form-group"><label>যোগদানের তারিখ *</label><input type="date" id="emp-joining"></div>
+        <div class="form-group"><label>জাতীয় পরিচয়পত্র নং</label><input type="text" id="emp-nid" placeholder="NID নম্বর"></div>
+        <div class="form-group"><label>জন্ম তারিখ</label><input type="date" id="emp-dob"></div>
+        <div class="form-group"><label>মোবাইল নম্বর</label><input type="tel" id="emp-phone" placeholder="01XXXXXXXXX"></div>
+        <div class="form-group"><label>ইমেইল</label><input type="email" id="emp-email" placeholder="email@example.com"></div>
+        <div class="form-group"><label>রক্তের গ্রুপ</label>
+          <select id="emp-blood">
+            <option value="">নির্বাচন করুন</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+          </select>
+        </div>
+        <div class="form-group"><label>লিঙ্গ</label>
+          <select id="emp-gender">
+            <option value="">নির্বাচন করুন</option>
+            <option value="পুরুষ">পুরুষ</option>
+            <option value="মহিলা">মহিলা</option>
+            <option value="অন্যান্য">অন্যান্য</option>
+          </select>
+        </div>
+        <div class="form-group"><label>শিক্ষাগত যোগ্যতা</label><input type="text" id="emp-education" placeholder="সর্বোচ্চ ডিগ্রি"></div>
+        <div class="form-group"><label>জরুরি যোগাযোগ</label><input type="text" id="emp-emergency" placeholder="নাম ও নম্বর"></div>
+        <div class="form-group" style="grid-column: 1/-1"><label>ঠিকানা</label><textarea id="emp-address" placeholder="বর্তমান ঠিকানা লিখুন"></textarea></div>
+        <div class="form-group"><label>মূল বেতন (Basic)</label><input type="number" id="emp-basic" placeholder="টাকা"></div>
+        <div class="form-group"><label>বাড়িভাড়া ভাতা</label><input type="number" id="emp-house" placeholder="টাকা"></div>
+        <div class="form-group"><label>চিকিৎসা ভাতা</label><input type="number" id="emp-medical" placeholder="টাকা"></div>
+        <div class="form-group"><label>অন্যান্য আয়</label><input type="number" id="emp-other" placeholder="টাকা"></div>
+        <div class="form-group">
+          <label>প্রভিডেন্ট ফান্ড কাটবে?</label>
+          <select id="emp-pbf-enable">
+            <option value="yes">হ্যাঁ</option>
+            <option value="no">না</option>
+          </select>
+        </div>
+        <div class="form-group"><label>নোট</label><input type="text" id="emp-note" placeholder="যেকোনো মন্তব্য"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="saveEmployee()">💾 সেভ করুন</button>
+        <button class="btn btn-outline" onclick="showPage('dashboard')">বাতিল</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE PAGE -->
+  <div id="page-profile" class="page">
+    <button class="back-btn no-print" onclick="showPage('dashboard')">← ড্যাশবোর্ডে ফিরে যান</button>
+    <div id="profile-content"></div>
+  </div>
+
+  <!-- SALARY SLIP PRINT PAGE -->
+  <div id="page-slip" class="page">
+    <button class="back-btn no-print" onclick="goBackFromSlip()">← প্রোফাইলে ফিরে যান</button>
+    <div id="slip-content"></div>
+    <div class="btn-row no-print" style="margin-top:16px;">
+      <button class="btn btn-primary" onclick="window.print()">🖨️ প্রিন্ট করুন</button>
+      <button class="btn btn-outline" onclick="goBackFromSlip()">বাতিল</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- EDIT EMPLOYEE MODAL -->
+<div class="modal-overlay" id="modal-edit-emp">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">কর্মীর তথ্য সম্পাদনা</div>
+      <button class="modal-close" onclick="closeModal('modal-edit-emp')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-emp-id">
+      <div class="form-grid">
+        <div class="form-group"><label>পূর্ণ নাম</label><input type="text" id="edit-emp-name"></div>
+        <div class="form-group"><label>পদবি</label><input type="text" id="edit-emp-position"></div>
+        <div class="form-group"><label>বিভাগ</label><input type="text" id="edit-emp-department"></div>
+        <div class="form-group"><label>যোগদানের তারিখ</label><input type="date" id="edit-emp-joining"></div>
+        <div class="form-group"><label>NID নম্বর</label><input type="text" id="edit-emp-nid"></div>
+        <div class="form-group"><label>জন্ম তারিখ</label><input type="date" id="edit-emp-dob"></div>
+        <div class="form-group"><label>মোবাইল</label><input type="tel" id="edit-emp-phone"></div>
+        <div class="form-group"><label>ইমেইল</label><input type="email" id="edit-emp-email"></div>
+        <div class="form-group"><label>রক্তের গ্রুপ</label>
+          <select id="edit-emp-blood">
+            <option value="">নির্বাচন করুন</option>
+            <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+            <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+          </select>
+        </div>
+        <div class="form-group"><label>লিঙ্গ</label>
+          <select id="edit-emp-gender">
+            <option value="">নির্বাচন করুন</option>
+            <option value="পুরুষ">পুরুষ</option>
+            <option value="মহিলা">মহিলা</option>
+            <option value="অন্যান্য">অন্যান্য</option>
+          </select>
+        </div>
+        <div class="form-group"><label>শিক্ষাগত যোগ্যতা</label><input type="text" id="edit-emp-education"></div>
+        <div class="form-group"><label>জরুরি যোগাযোগ</label><input type="text" id="edit-emp-emergency"></div>
+        <div class="form-group" style="grid-column:1/-1"><label>ঠিকানা</label><textarea id="edit-emp-address"></textarea></div>
+        <div class="form-group"><label>মূল বেতন (Basic)</label><input type="number" id="edit-emp-basic"></div>
+        <div class="form-group"><label>বাড়িভাড়া ভাতা</label><input type="number" id="edit-emp-house"></div>
+        <div class="form-group"><label>চিকিৎসা ভাতা</label><input type="number" id="edit-emp-medical"></div>
+        <div class="form-group"><label>অন্যান্য আয়</label><input type="number" id="edit-emp-other"></div>
+        <div class="form-group"><label>প্রভিডেন্ট ফান্ড</label>
+          <select id="edit-emp-pbf">
+            <option value="yes">কাটবে</option>
+            <option value="no">কাটবে না</option>
+          </select>
+        </div>
+        <div class="form-group"><label>অবস্থা</label>
+          <select id="edit-emp-status">
+            <option value="active">সক্রিয়</option>
+            <option value="inactive">নিষ্ক্রিয়</option>
+          </select>
+        </div>
+        <div class="form-group"><label>নোট</label><input type="text" id="edit-emp-note"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="updateEmployee()">💾 আপডেট করুন</button>
+        <button class="btn btn-outline" onclick="closeModal('modal-edit-emp')">বাতিল</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GLOBAL LOADER -->
+<div id="global-loader" style="display:none;position:fixed;inset:0;background:rgba(26,58,92,0.55);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <div style="width:48px;height:48px;border:5px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+  <div id="loader-msg" style="color:white;font-size:16px;font-weight:600;font-family:'Hind Siliguri',sans-serif;">লোড হচ্ছে...</div>
+</div>
+<style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+
+<!-- NOTIFICATION -->
+<div class="notif" id="notif"></div>
+
+<script>
+// =========== CONFIG ===========
+const API_URL = 'https://script.google.com/macros/s/AKfycbzjHQWj07GptWopZUycHNZnvXGvlruu7uESyguXisIP4MhpXlJEYVtqccSA2ft8bvP2/exec';
+
+// =========== DATA ===========
+let employees = [];
+let currentProfileId = null;
+let currentSlipMonth = null;
+let isLoading = false;
+
+// =========== API ===========
+async function api(params) {
+  const url = API_URL + '?' + new URLSearchParams(params).toString();
+  const res = await fetch(url);
+  const json = await res.json();
+  if (!json.success) throw new Error(json.error || 'API error');
+  return json;
+}
+
+function showLoader(msg = 'লোড হচ্ছে...') {
+  document.getElementById('loader-msg').textContent = msg;
+  document.getElementById('global-loader').style.display = 'flex';
+}
+function hideLoader() {
+  document.getElementById('global-loader').style.display = 'none';
+}
+
+async function loadAllData() {
+  showLoader('ডেটা লোড হচ্ছে...');
+  try {
+    const empRes = await api({ action: 'getEmployees' });
+    const empList = empRes.data || [];
+
+    // প্রতিটা কর্মীর salary লোড করো
+    for (const emp of empList) {
+      const salRes = await api({ action: 'getSalaries', empId: emp.id });
+      emp.salaries = (salRes.data || []).map(s => ({
+        ...s,
+        pbf_active: s.pbf_active === 'true' || s.pbf_active === true
+      }));
+      // pbf_enable ঠিক রাখো
+      emp.pbf_enable = emp.pbf_enable || 'yes';
+    }
+    employees = empList;
+  } catch(e) {
+    notify('ডেটা লোড করতে সমস্যা হয়েছে: ' + e.message, 'danger');
+  }
+  hideLoader();
+}
+
+async function saveData() {
+  // Google Sheets এ আলাদাভাবে সেভ হয়, এই ফাংশন শুধু local sync রাখে
+  // প্রতিটা অপারেশন নিজেই API কল করে
+}
+
+// =========== NAVIGATION ===========
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (name === 'dashboard') { updateDashboard(); document.querySelectorAll('.nav-btn')[0].classList.add('active'); }
+  if (name === 'add-employee') { document.querySelectorAll('.nav-btn')[1].classList.add('active'); }
+}
+
+function goBackFromSlip() {
+  if (currentProfileId) {
+    showProfile(currentProfileId);
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-profile').classList.add('active');
+  } else { showPage('dashboard'); }
+}
+
+// =========== MODAL ===========
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// =========== NOTIFICATION ===========
+function notify(msg, type = '') {
+  const n = document.getElementById('notif');
+  n.textContent = msg; n.className = 'notif show ' + type;
+  setTimeout(() => n.classList.remove('show'), 3000);
+}
+
+// =========== HELPERS ===========
+const BD_MONTHS = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+function monthKey(y, m) { return `${y}-${String(m+1).padStart(2,'0')}`; }
+function monthLabel(key) { const [y,m] = key.split('-'); return `${BD_MONTHS[parseInt(m)-1]} ${y}`; }
+function tk(n) { return '৳' + (parseFloat(n)||0).toLocaleString('en-IN'); }
+function getEmp(id) { return employees.find(e => e.id === id); }
+
+function calcNetSalary(s) {
+  const gross = (parseFloat(s.basic)||0) + (parseFloat(s.house)||0) + (parseFloat(s.medical)||0) + (parseFloat(s.other_income)||0);
+  const absent_deduct = (parseFloat(s.total_days)||1) > 0 ? ((parseFloat(s.basic)||0) / (parseFloat(s.total_days)||1)) * (parseFloat(s.absent)||0) : 0;
+  const total_deduct = (parseFloat(s.deduction)||0) + absent_deduct + (s.pbf_active ? (parseFloat(s.pbf)||0) : 0) + (parseFloat(s.advance)||0);
+  return Math.max(0, gross - total_deduct);
+}
+
+function getTotalPF(emp) {
+  if (emp.pbf_enable === 'no') return 0;
+  return (emp.salaries || []).reduce((sum, s) => sum + (s.pbf_active ? (parseFloat(s.pbf)||0) : 0), 0);
+}
+
+function getUnpaidSalary(emp) {
+  return (emp.salaries || []).filter(s => s.status === 'unpaid').reduce((sum, s) => sum + (parseFloat(s.net_salary)||0), 0);
+}
+
+// =========== DASHBOARD ===========
+function updateDashboard() {
+  const total = employees.length;
+  const active = employees.filter(e => e.status !== 'inactive').length;
+  const unpaid = employees.reduce((sum, e) => sum + getUnpaidSalary(e), 0);
+  const pf = employees.reduce((sum, e) => sum + getTotalPF(e), 0);
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-active').textContent = active;
+  document.getElementById('stat-unpaid').textContent = tk(unpaid);
+  document.getElementById('stat-pf').textContent = tk(pf);
+  renderEmployeeTable(employees);
+}
+
+function filterEmployees(q) {
+  const filtered = employees.filter(e => e.name.includes(q) || e.position.includes(q));
+  renderEmployeeTable(filtered);
+}
+
+function renderEmployeeTable(list) {
+  const tbody = document.getElementById('employee-table-body');
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="icon">👥</div><p>কোনো কর্মী পাওয়া যায়নি</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map((e, i) => `
+    <tr>
+      <td>${i+1}</td>
+      <td><strong>${e.name}</strong></td>
+      <td>${e.position}</td>
+      <td>${e.joining ? new Date(e.joining).toLocaleDateString('bn-BD') : '—'}</td>
+      <td>${e.pbf_enable === 'no' ? '<span style="color:var(--text-muted)">০</span>' : '<strong style="color:var(--accent)">' + tk(getTotalPF(e)) + '</strong>'}</td>
+      <td><strong style="color:var(--danger)">${tk(getUnpaidSalary(e))}</strong></td>
+      <td><span class="tag ${e.status === 'inactive' ? 'tag-inactive' : 'tag-active'}">${e.status === 'inactive' ? 'নিষ্ক্রিয়' : 'সক্রিয়'}</span></td>
+      <td>
+        <button class="btn btn-sm btn-primary" onclick="openProfilePage('${e.id}')">👁️ প্রোফাইল</button>
+        <button class="btn btn-sm btn-outline" onclick="openEditEmpModal('${e.id}')" style="margin-left:4px;">✏️ এডিট</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// =========== ADD EMPLOYEE ===========
+async function saveEmployee() {
+  const name = document.getElementById('emp-name').value.trim();
+  const position = document.getElementById('emp-position').value.trim();
+  const joining = document.getElementById('emp-joining').value;
+  if (!name || !position || !joining) { notify('নাম, পদবি ও যোগদানের তারিখ আবশ্যক', 'danger'); return; }
+  const emp = {
+    id: 'emp_' + Date.now(),
+    name, position,
+    department: document.getElementById('emp-department').value,
+    joining,
+    nid: document.getElementById('emp-nid').value,
+    dob: document.getElementById('emp-dob').value,
+    phone: document.getElementById('emp-phone').value,
+    email: document.getElementById('emp-email').value,
+    blood: document.getElementById('emp-blood').value,
+    gender: document.getElementById('emp-gender').value,
+    education: document.getElementById('emp-education').value,
+    emergency: document.getElementById('emp-emergency').value,
+    address: document.getElementById('emp-address').value,
+    basic: document.getElementById('emp-basic').value,
+    house: document.getElementById('emp-house').value,
+    medical: document.getElementById('emp-medical').value,
+    other_income: document.getElementById('emp-other').value,
+    pbf_enable: document.getElementById('emp-pbf-enable').value,
+    note: document.getElementById('emp-note').value,
+    status: 'active',
+    salaries: []
+  };
+
+  showLoader('কর্মী সেভ হচ্ছে...');
+  try {
+    await api({ action: 'saveEmployee', data: JSON.stringify(emp) });
+
+    // মাসগুলো অটো তৈরি করে Sheets এ সেভ করো
+    autoGenerateMonths(emp);
+    for (const sal of emp.salaries) {
+      const salData = { ...sal, empId: emp.id };
+      await api({ action: 'saveSalary', data: JSON.stringify(salData) });
+    }
+
+    employees.push(emp);
+    notify('কর্মী সফলভাবে যোগ করা হয়েছে!', 'success');
+    ['emp-name','emp-position','emp-department','emp-nid','emp-phone','emp-email','emp-education','emp-emergency','emp-address','emp-basic','emp-house','emp-medical','emp-other','emp-note'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('emp-joining').value = '';
+    document.getElementById('emp-dob').value = '';
+    showPage('dashboard');
+  } catch(e) {
+    notify('সেভ করতে সমস্যা: ' + e.message, 'danger');
+  }
+  hideLoader();
+}
+
+// =========== EDIT EMPLOYEE ===========
+function openEditEmpModal(id) {
+  const e = getEmp(id);
+  if (!e) return;
+  document.getElementById('edit-emp-id').value = id;
+  document.getElementById('edit-emp-name').value = e.name || '';
+  document.getElementById('edit-emp-position').value = e.position || '';
+  document.getElementById('edit-emp-department').value = e.department || '';
+  document.getElementById('edit-emp-joining').value = e.joining || '';
+  document.getElementById('edit-emp-nid').value = e.nid || '';
+  document.getElementById('edit-emp-dob').value = e.dob || '';
+  document.getElementById('edit-emp-phone').value = e.phone || '';
+  document.getElementById('edit-emp-email').value = e.email || '';
+  document.getElementById('edit-emp-blood').value = e.blood || '';
+  document.getElementById('edit-emp-gender').value = e.gender || '';
+  document.getElementById('edit-emp-education').value = e.education || '';
+  document.getElementById('edit-emp-emergency').value = e.emergency || '';
+  document.getElementById('edit-emp-address').value = e.address || '';
+  document.getElementById('edit-emp-basic').value = e.basic || '';
+  document.getElementById('edit-emp-house').value = e.house || '';
+  document.getElementById('edit-emp-medical').value = e.medical || '';
+  document.getElementById('edit-emp-other').value = e.other_income || '';
+  document.getElementById('edit-emp-pbf').value = e.pbf_enable || 'yes';
+  document.getElementById('edit-emp-status').value = e.status || 'active';
+  document.getElementById('edit-emp-note').value = e.note || '';
+  openModal('modal-edit-emp');
+}
+
+async function updateEmployee() {
+  const id = document.getElementById('edit-emp-id').value;
+  const emp = getEmp(id);
+  if (!emp) return;
+  emp.name = document.getElementById('edit-emp-name').value;
+  emp.position = document.getElementById('edit-emp-position').value;
+  emp.department = document.getElementById('edit-emp-department').value;
+  emp.joining = document.getElementById('edit-emp-joining').value;
+  emp.nid = document.getElementById('edit-emp-nid').value;
+  emp.dob = document.getElementById('edit-emp-dob').value;
+  emp.phone = document.getElementById('edit-emp-phone').value;
+  emp.email = document.getElementById('edit-emp-email').value;
+  emp.blood = document.getElementById('edit-emp-blood').value;
+  emp.gender = document.getElementById('edit-emp-gender').value;
+  emp.education = document.getElementById('edit-emp-education').value;
+  emp.emergency = document.getElementById('edit-emp-emergency').value;
+  emp.address = document.getElementById('edit-emp-address').value;
+  emp.basic = document.getElementById('edit-emp-basic').value;
+  emp.house = document.getElementById('edit-emp-house').value;
+  emp.medical = document.getElementById('edit-emp-medical').value;
+  emp.other_income = document.getElementById('edit-emp-other').value;
+  emp.pbf_enable = document.getElementById('edit-emp-pbf').value;
+  emp.status = document.getElementById('edit-emp-status').value;
+  emp.note = document.getElementById('edit-emp-note').value;
+
+  showLoader('আপডেট হচ্ছে...');
+  try {
+    const empData = { ...emp };
+    delete empData.salaries;
+    await api({ action: 'updateEmployee', data: JSON.stringify(empData) });
+
+    // নতুন মাস থাকলে সেভ করো
+    const oldMonths = emp.salaries.map(s => s.month);
+    autoGenerateMonths(emp);
+    for (const sal of emp.salaries) {
+      if (!oldMonths.includes(sal.month)) {
+        await api({ action: 'saveSalary', data: JSON.stringify({ ...sal, empId: emp.id }) });
+      }
+    }
+
+    closeModal('modal-edit-emp');
+    notify('তথ্য আপডেট হয়েছে!', 'success');
+    if (currentProfileId === id) showProfile(id);
+    else updateDashboard();
+  } catch(e) {
+    notify('আপডেট করতে সমস্যা: ' + e.message, 'danger');
+  }
+  hideLoader();
+}
+
+// =========== PROFILE ===========
+function openProfilePage(id) {
+  currentProfileId = id;
+  showProfile(id);
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-profile').classList.add('active');
+}
+
+async function showProfile(id) {
+  const emp = getEmp(id);
+  if (!emp) return;
+
+  // অটো সব মাস তৈরি করো যোগদানের তারিখ থেকে
+  const oldMonths = (emp.salaries||[]).map(s => s.month);
+  autoGenerateMonths(emp);
+
+  // নতুন মাস থাকলে Sheets এ সেভ করো
+  const newMonths = emp.salaries.filter(s => !oldMonths.includes(s.month));
+  for (const sal of newMonths) {
+    try {
+      await api({ action: 'saveSalary', data: JSON.stringify({ ...sal, empId: emp.id }) });
+    } catch(e) { /* silent */ }
+  }
+
+  const totalPF = getTotalPF(emp);
+  const unpaid = getUnpaidSalary(emp);
+
+  let salaryHTML = '';
+  const sorted = [...(emp.salaries||[])].sort((a,b) => b.month.localeCompare(a.month));
+
+  if (sorted.length === 0) {
+    salaryHTML = '<div class="empty-state"><div class="icon">📄</div><p>এখনো কোনো বেতন রেকর্ড নেই</p></div>';
+  } else {
+    salaryHTML = sorted.map(s => {
+      const net = parseFloat(s.net_salary)||0;
+      return `
+        <div class="salary-month-card">
+          <div class="salary-month-header" onclick="toggleSalaryMonth('${id}','${s.month}')">
+            <div>
+              <div class="month-label">${monthLabel(s.month)}</div>
+              <div class="month-status">
+                <span class="tag ${s.status === 'paid' ? 'tag-active' : 'tag-inactive'}">${s.status === 'paid' ? '✓ পরিশোধিত' : '⏳ অপরিশোধিত'}</span>
+              </div>
+            </div>
+            <div style="text-align:right">
+              <div class="month-net">${tk(net)}</div>
+              <div style="font-size:12px;color:var(--text-muted)">নেট বেতন</div>
+            </div>
+          </div>
+          <div class="salary-month-body" id="salary-body-${id}-${s.month}">
+            <div id="salary-view-${id}-${s.month}">
+              ${renderSalaryView(s, emp)}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('profile-content').innerHTML = `
+    <div class="profile-header">
+      <div class="avatar">${emp.name.charAt(0)}</div>
+      <div>
+        <div class="profile-name">${emp.name}</div>
+        <div class="profile-meta">
+          <span>📋 ${emp.position}</span>
+          ${emp.department ? `<span>🏢 ${emp.department}</span>` : ''}
+          <span>📅 যোগদান: ${emp.joining ? new Date(emp.joining).toLocaleDateString('en-GB') : '—'}</span>
+          ${emp.phone ? `<span>📞 ${emp.phone}</span>` : ''}
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;">
+      <div class="stat-card"><div class="stat-label">মোট প্রভিডেন্ট ফান্ড</div><div class="stat-value accent">${emp.pbf_enable==='no'?'০':tk(totalPF)}</div></div>
+      <div class="stat-card"><div class="stat-label">অপরিশোধিত বেতন</div><div class="stat-value danger">${tk(unpaid)}</div></div>
+      <div class="stat-card"><div class="stat-label">মোট বেতন রেকর্ড</div><div class="stat-value">${(emp.salaries||[]).length} মাস</div></div>
+      <div class="stat-card"><div class="stat-label">মূল বেতন</div><div class="stat-value">${tk(emp.basic)}</div></div>
+    </div>
+
+    <!-- Personal Info -->
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">ব্যক্তিগত তথ্য</div>
+        <button class="btn btn-sm btn-outline no-print" onclick="openEditEmpModal('${id}')">✏️ এডিট</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;">
+        ${infoRow('NID', emp.nid)}
+        ${infoRow('জন্ম তারিখ', emp.dob ? new Date(emp.dob).toLocaleDateString('en-GB') : '')}
+        ${infoRow('লিঙ্গ', emp.gender)}
+        ${infoRow('রক্তের গ্রুপ', emp.blood)}
+        ${infoRow('শিক্ষাগত যোগ্যতা', emp.education)}
+        ${infoRow('ইমেইল', emp.email)}
+        ${infoRow('জরুরি যোগাযোগ', emp.emergency)}
+        ${infoRow('ঠিকানা', emp.address)}
+        ${infoRow('PF কাটা হয়', emp.pbf_enable === 'yes' ? 'হ্যাঁ' : 'না')}
+        ${emp.note ? infoRow('নোট', emp.note) : ''}
+      </div>
+    </div>
+
+    <!-- Salary Records -->
+    <div class="card">
+      <div class="section-header">
+        <div class="section-title">বেতন রেকর্ড (যোগদান থেকে এখন পর্যন্ত)</div>
+        <div class="no-print" style="font-size:13px;color:var(--text-muted);">মোট ${(emp.salaries||[]).length} মাস</div>
+      </div>
+      ${salaryHTML}
+    </div>
+  `;
+}
+
+function infoRow(label, value) {
+  if (!value) return '';
+  return `<div style="font-size:13px;"><span style="color:var(--text-muted);font-weight:600;">${label}:</span> ${value}</div>`;
+}
+
+function renderSalaryView(s, emp) {
+  return `
+    <div class="salary-grid">
+      ${sField('মূল বেতন', tk(s.basic))}
+      ${sField('বাড়িভাড়া ভাতা', tk(s.house))}
+      ${sField('চিকিৎসা ভাতা', tk(s.medical))}
+      ${sField('অন্যান্য আয়', tk(s.other_income))}
+      ${sField('মোট কার্যদিবস', s.total_days)}
+      ${sField('অনুপস্থিত দিন', s.absent)}
+      ${sField('কর্তন', tk(s.deduction))}
+      ${sField('প্রভিডেন্ট ফান্ড', s.pbf_active ? tk(s.pbf) : 'প্রযোজ্য নয়')}
+      ${sField('পূর্বের PF', tk(s.prev_pbf))}
+      ${sField('অগ্রিম', tk(s.advance))}
+    </div>
+    <div style="background:#f0f4f8;border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+      <span style="font-size:15px;font-weight:700;color:var(--primary)">নেট বেতন</span>
+      <span style="font-size:20px;font-weight:700;color:var(--success)">${tk(s.net_salary)}</span>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;" class="no-print">
+      <button class="btn btn-sm btn-primary" onclick="editSalaryMonth('${emp.id}','${s.month}')">✏️ এডিট</button>
+      <button class="btn btn-sm btn-accent" onclick="printSlip('${emp.id}','${s.month}')">🖨️ স্লিপ প্রিন্ট</button>
+      <button class="btn btn-sm ${s.status==='paid'?'btn-outline':'btn-success'}" onclick="togglePayStatus('${emp.id}','${s.month}')">
+        ${s.status==='paid'?'⏳ অপরিশোধিত চিহ্নিত করুন':'✓ পরিশোধিত চিহ্নিত করুন'}
+      </button>
+      <button class="btn btn-sm btn-danger" onclick="deleteSalaryMonth('${emp.id}','${s.month}')">🗑️ মুছুন</button>
+    </div>
+  `;
+}
+
+function sField(label, value) {
+  return `<div style="font-size:13px;"><span style="color:var(--text-muted);font-size:12px;font-weight:600;display:block;">${label}</span><span style="font-weight:600;">${value||'—'}</span></div>`;
+}
+
+// =========== AUTO GENERATE MONTHS FROM JOINING DATE ===========
+function autoGenerateMonths(emp) {
+  if (!emp.joining) return;
+  const start = new Date(emp.joining);
+  const now = new Date();
+  emp.salaries = emp.salaries || [];
+
+  let y = start.getFullYear();
+  let m = start.getMonth(); // 0-indexed
+
+  while (y < now.getFullYear() || (y === now.getFullYear() && m <= now.getMonth())) {
+    const key = `${y}-${String(m+1).padStart(2,'0')}`;
+    const exists = emp.salaries.some(s => s.month === key);
+    if (!exists) {
+      // prev pbf = sum of all pbf before this month
+      const prevPBF = emp.salaries
+        .filter(s => s.month < key)
+        .reduce((sum, s) => sum + (s.pbf_active ? (parseFloat(s.pbf)||0) : 0), 0);
+      emp.salaries.push({
+        month: key,
+        basic: emp.basic || 0,
+        house: emp.house || 0,
+        medical: emp.medical || 0,
+        other_income: emp.other_income || 0,
+        total_days: 26,
+        absent: 0,
+        deduction: 0,
+        pbf_active: emp.pbf_enable === 'yes',
+        pbf: 0,
+        prev_pbf: prevPBF,
+        advance: 0,
+        net_salary: 0,
+        status: 'unpaid'
+      });
+    }
+    m++;
+    if (m > 11) { m = 0; y++; }
+  }
+}
+
+// =========== SALARY MONTH ===========
+function toggleSalaryMonth(empId, month) {
+  const body = document.getElementById(`salary-body-${empId}-${month}`);
+  body.classList.toggle('open');
+}
+
+function addNewSalaryMonth(empId) {
+  const now = new Date();
+  addSalaryMonth(empId, monthKey(now.getFullYear(), now.getMonth()));
+}
+
+function addCustomSalaryMonth(empId) {
+  const val = prompt('মাস ও বছর লিখুন (YYYY-MM ফরম্যাটে, যেমন 2024-03):');
+  if (!val || !/^\d{4}-\d{2}$/.test(val)) { notify('সঠিক ফরম্যাটে লিখুন', 'danger'); return; }
+  addSalaryMonth(empId, val);
+}
+
+function addSalaryMonth(empId, monthKey) {
+  const emp = getEmp(empId);
+  if (!emp) return;
+  if ((emp.salaries||[]).some(s => s.month === monthKey)) { notify('এই মাসের রেকর্ড ইতিমধ্যে আছে', 'danger'); return; }
+  const prevPBF = getTotalPF(emp);
+  const newSalary = {
+    month: monthKey,
+    basic: emp.basic || 0,
+    house: emp.house || 0,
+    medical: emp.medical || 0,
+    other_income: emp.other_income || 0,
+    total_days: 26,
+    absent: 0,
+    deduction: 0,
+    pbf_active: emp.pbf_enable === 'yes',
+    pbf: 0,
+    prev_pbf: prevPBF,
+    advance: 0,
+    net_salary: 0,
+    status: 'unpaid'
+  };
+  newSalary.net_salary = calcNetSalary(newSalary);
+  emp.salaries = emp.salaries || [];
+  emp.salaries.push(newSalary);
+  saveData();
+  notify('বেতন রেকর্ড যোগ হয়েছে', 'success');
+  showProfile(empId);
+  setTimeout(() => {
+    const body = document.getElementById(`salary-body-${empId}-${monthKey}`);
+    if (body) { body.classList.add('open'); editSalaryMonth(empId, monthKey); }
+  }, 100);
+}
+
+function editSalaryMonth(empId, month) {
+  const emp = getEmp(empId);
+  const s = (emp.salaries||[]).find(x => x.month === month);
+  if (!s) return;
+
+  const body = document.getElementById(`salary-body-${empId}-${month}`);
+  body.classList.add('open');
+  body.innerHTML = `
+    <div class="salary-grid">
+      <div class="salary-field"><label>মূল বেতন</label><input type="number" id="sf-basic" value="${s.basic||0}" oninput="recalcSalary('${empId}','${month}')"></div>
+      <div class="salary-field"><label>বাড়িভাড়া ভাতা</label><input type="number" id="sf-house" value="${s.house||0}" oninput="recalcSalary('${empId}','${month}')"></div>
+      <div class="salary-field"><label>চিকিৎসা ভাতা</label><input type="number" id="sf-medical" value="${s.medical||0}" oninput="recalcSalary('${empId}','${month}')"></div>
+      <div class="salary-field"><label>অন্যান্য আয়</label><input type="number" id="sf-other" value="${s.other_income||0}" oninput="recalcSalary('${empId}','${month}')"></div>
+      <div class="salary-field"><label>মোট কার্যদিবস</label><input type="number" id="sf-total_days" value="${s.total_days||26}" oninput="recalcSalary('${empId}','${month}')"></div>
+      <div class="salary-field"><label>অনুপস্থিত দিন</label><input type="number" id="sf-absent" value="${s.absent||0}" oninput="recalcSalary('${empId}','${month}')"></div>
+      <div class="salary-field"><label>কর্তন</label><input type="number" id="sf-deduction" value="${s.deduction||0}" oninput="recalcSalary('${empId}','${month}')"></div>
+      <div class="salary-field">
+        <label>PF কাটবে? 
+          <span id="sf-pbf-toggle" class="toggle-switch ${s.pbf_active?'on':''}" onclick="togglePBF('${empId}','${month}')" style="display:inline-block;vertical-align:middle;margin-left:6px;"></span>
+        </label>
+        <input type="number" id="sf-pbf" value="${s.pbf||0}" ${!s.pbf_active?'readonly':''} oninput="recalcSalary('${empId}','${month}')">
+      </div>
+      <div class="salary-field"><label>পূর্বের PF</label><input type="number" id="sf-prev_pbf" value="${s.prev_pbf||0}" readonly></div>
+      <div class="salary-field"><label>অগ্রিম</label><input type="number" id="sf-advance" value="${s.advance||0}" oninput="recalcSalary('${empId}','${month}')"></div>
+    </div>
+    <div style="background:#f0f4f8;border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
+      <span style="font-size:15px;font-weight:700;color:var(--primary)">নেট বেতন</span>
+      <span id="sf-net" style="font-size:22px;font-weight:700;color:var(--success)">${tk(s.net_salary)}</span>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+      <button class="btn btn-success" onclick="saveSalaryMonth('${empId}','${month}')">💾 সেভ করুন</button>
+      <button class="btn btn-accent" onclick="printSlip('${empId}','${month}')">🖨️ স্লিপ প্রিন্ট</button>
+      <button class="btn btn-outline" onclick="cancelEditSalary('${empId}','${month}')">বাতিল</button>
+    </div>
+  `;
+}
+
+let pbfActiveState = {};
+function togglePBF(empId, month) {
+  const key = empId + month;
+  const emp = getEmp(empId);
+  const s = (emp.salaries||[]).find(x => x.month === month);
+  const toggle = document.getElementById('sf-pbf-toggle');
+  const input = document.getElementById('sf-pbf');
+  const current = toggle.classList.contains('on');
+  pbfActiveState[key] = !current;
+  toggle.classList.toggle('on');
+  input.readOnly = current;
+  if (current) input.value = 0;
+  recalcSalary(empId, month);
+}
+
+function recalcSalary(empId, month) {
+  const key = empId + month;
+  const emp = getEmp(empId);
+  const s = (emp.salaries||[]).find(x => x.month === month);
+  const pbfToggle = document.getElementById('sf-pbf-toggle');
+  const pbfActive = pbfToggle ? pbfToggle.classList.contains('on') : s.pbf_active;
+  const temp = {
+    basic: parseFloat(document.getElementById('sf-basic')?.value)||0,
+    house: parseFloat(document.getElementById('sf-house')?.value)||0,
+    medical: parseFloat(document.getElementById('sf-medical')?.value)||0,
+    other_income: parseFloat(document.getElementById('sf-other')?.value)||0,
+    total_days: parseFloat(document.getElementById('sf-total_days')?.value)||26,
+    absent: parseFloat(document.getElementById('sf-absent')?.value)||0,
+    deduction: parseFloat(document.getElementById('sf-deduction')?.value)||0,
+    pbf_active: pbfActive,
+    pbf: parseFloat(document.getElementById('sf-pbf')?.value)||0,
+    advance: parseFloat(document.getElementById('sf-advance')?.value)||0,
+  };
+  const net = calcNetSalary(temp);
+  const netEl = document.getElementById('sf-net');
+  if (netEl) netEl.textContent = tk(net);
+}
+
+async function saveSalaryMonth(empId, month) {
+  const emp = getEmp(empId);
+  const s = (emp.salaries||[]).find(x => x.month === month);
+  if (!s) return;
+  const pbfToggle = document.getElementById('sf-pbf-toggle');
+  s.basic = parseFloat(document.getElementById('sf-basic').value)||0;
+  s.house = parseFloat(document.getElementById('sf-house').value)||0;
+  s.medical = parseFloat(document.getElementById('sf-medical').value)||0;
+  s.other_income = parseFloat(document.getElementById('sf-other').value)||0;
+  s.total_days = parseFloat(document.getElementById('sf-total_days').value)||26;
+  s.absent = parseFloat(document.getElementById('sf-absent').value)||0;
+  s.deduction = parseFloat(document.getElementById('sf-deduction').value)||0;
+  s.pbf_active = pbfToggle ? pbfToggle.classList.contains('on') : s.pbf_active;
+  s.pbf = parseFloat(document.getElementById('sf-pbf').value)||0;
+  s.advance = parseFloat(document.getElementById('sf-advance').value)||0;
+  s.net_salary = calcNetSalary(s);
+
+  showLoader('বেতন সেভ হচ্ছে...');
+  try {
+    await api({ action: 'updateSalary', data: JSON.stringify({ ...s, empId }) });
+    notify('বেতন সেভ হয়েছে!', 'success');
+    showProfile(empId);
+  } catch(e) {
+    notify('সেভ করতে সমস্যা: ' + e.message, 'danger');
+  }
+  hideLoader();
+}
+
+function cancelEditSalary(empId, month) {
+  showProfile(empId);
+  setTimeout(() => {
+    const body = document.getElementById(`salary-body-${empId}-${month}`);
+    if (body) body.classList.add('open');
+  }, 50);
+}
+
+async function togglePayStatus(empId, month) {
+  const emp = getEmp(empId);
+  const s = (emp.salaries||[]).find(x => x.month === month);
+  if (!s) return;
+  s.status = s.status === 'paid' ? 'unpaid' : 'paid';
+
+  showLoader('আপডেট হচ্ছে...');
+  try {
+    await api({ action: 'updateSalary', data: JSON.stringify({ ...s, empId }) });
+    notify(s.status === 'paid' ? 'পরিশোধিত চিহ্নিত হয়েছে' : 'অপরিশোধিত চিহ্নিত হয়েছে', 'success');
+    showProfile(empId);
+    setTimeout(() => {
+      const body = document.getElementById(`salary-body-${empId}-${month}`);
+      if (body) body.classList.add('open');
+    }, 50);
+  } catch(e) {
+    notify('আপডেট করতে সমস্যা: ' + e.message, 'danger');
+  }
+  hideLoader();
+}
+
+async function deleteSalaryMonth(empId, month) {
+  if (!confirm('এই মাসের বেতন রেকর্ড মুছে ফেলবেন?')) return;
+  const emp = getEmp(empId);
+
+  showLoader('মুছে ফেলা হচ্ছে...');
+  try {
+    await api({ action: 'deleteSalary', empId, month });
+    emp.salaries = (emp.salaries||[]).filter(s => s.month !== month);
+    notify('রেকর্ড মুছে ফেলা হয়েছে', 'danger');
+    showProfile(empId);
+  } catch(e) {
+    notify('মুছতে সমস্যা: ' + e.message, 'danger');
+  }
+  hideLoader();
+}
+
+// =========== SALARY SLIP ===========
+function printSlip(empId, month) {
+  const emp = getEmp(empId);
+  const s = (emp.salaries||[]).find(x => x.month === month);
+  if (!s || !emp) return;
+  currentSlipMonth = month;
+  const gross = (parseFloat(s.basic)||0) + (parseFloat(s.house)||0) + (parseFloat(s.medical)||0) + (parseFloat(s.other_income)||0);
+  const absent_deduct = (parseFloat(s.total_days)||1) > 0 ? ((parseFloat(s.basic)||0) / (parseFloat(s.total_days)||1)) * (parseFloat(s.absent)||0) : 0;
+  const totalDeduct = (parseFloat(s.deduction)||0) + absent_deduct + (s.pbf_active ? (parseFloat(s.pbf)||0) : 0) + (parseFloat(s.advance)||0);
+
+  document.getElementById('slip-content').innerHTML = `
+    <div class="slip-box">
+      <div class="slip-title">
+        <h2>বেতন স্লিপ / Salary Slip</h2>
+        <p>${monthLabel(month)}</p>
+      </div>
+      <div style="border-top:2px solid var(--primary);margin-bottom:16px;padding-top:16px;">
+        <div class="slip-info">
+          <div class="slip-info-item"><span>নাম:</span> ${emp.name}</div>
+          <div class="slip-info-item"><span>পদবি:</span> ${emp.position}</div>
+          ${emp.department ? `<div class="slip-info-item"><span>বিভাগ:</span> ${emp.department}</div>` : ''}
+          <div class="slip-info-item"><span>যোগদান:</span> ${emp.joining ? new Date(emp.joining).toLocaleDateString('en-GB') : '—'}</div>
+          <div class="slip-info-item"><span>কার্যদিবস:</span> ${s.total_days} দিন</div>
+          <div class="slip-info-item"><span>অনুপস্থিত:</span> ${s.absent} দিন</div>
+        </div>
+      </div>
+      <table class="slip-table">
+        <thead><tr><th>বিবরণ</th><th style="text-align:right">পরিমাণ (টাকা)</th></tr></thead>
+        <tbody>
+          <tr><td colspan="2" style="font-weight:700;background:#f8fafc;">আয়</td></tr>
+          <tr><td>মূল বেতন (Basic Salary)</td><td style="text-align:right">${tk(s.basic)}</td></tr>
+          ${parseFloat(s.house) ? `<tr><td>বাড়িভাড়া ভাতা (House Rent)</td><td style="text-align:right">${tk(s.house)}</td></tr>` : ''}
+          ${parseFloat(s.medical) ? `<tr><td>চিকিৎসা ভাতা (Medical)</td><td style="text-align:right">${tk(s.medical)}</td></tr>` : ''}
+          ${parseFloat(s.other_income) ? `<tr><td>অন্যান্য আয়</td><td style="text-align:right">${tk(s.other_income)}</td></tr>` : ''}
+          <tr><td colspan="2" style="font-weight:700;background:#f8fafc;">কর্তন</td></tr>
+          ${absent_deduct > 0 ? `<tr><td>অনুপস্থিতি কর্তন (${s.absent} দিন)</td><td style="text-align:right">- ${tk(absent_deduct.toFixed(2))}</td></tr>` : ''}
+          ${parseFloat(s.deduction) ? `<tr><td>কর্তন</td><td style="text-align:right">- ${tk(s.deduction)}</td></tr>` : ''}
+          ${s.pbf_active && parseFloat(s.pbf) ? `<tr><td>প্রভিডেন্ট ফান্ড (PF)</td><td style="text-align:right">- ${tk(s.pbf)}</td></tr>` : ''}
+          ${parseFloat(s.advance) ? `<tr><td>অগ্রিম কর্তন</td><td style="text-align:right">- ${tk(s.advance)}</td></tr>` : ''}
+          <tr class="total-row"><td>নেট বেতন (Net Salary)</td><td style="text-align:right;color:var(--success)">${tk(s.net_salary)}</td></tr>
+        </tbody>
+      </table>
+      ${s.pbf_active ? `<div style="font-size:13px;color:var(--text-muted);margin-top:8px;">এই মাস পর্যন্ত মোট PF: <strong>${tk(getTotalPF(emp))}</strong></div>` : ''}
+      <div class="slip-footer">
+        প্রিন্টের তারিখ: ${new Date().toLocaleDateString('en-GB')} | সিস্টেম তৈরি বেতন স্লিপ
+      </div>
+    </div>
+  `;
+
+  // slip পেজে যাও
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-slip').classList.add('active');
+
+  // একটু দেরি করে প্রিন্ট ডায়ালগ খোলো যাতে পেজ রেন্ডার হয়
+  setTimeout(() => window.print(), 300);
+}
+
+// =========== INIT ===========
+(async () => {
+  await loadAllData();
+  updateDashboard();
+})();
+</script>
+</body>
+</html>
