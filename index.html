@@ -472,27 +472,6 @@
   const PASSWORD = '123454';
   const SESSION_KEY = 'kormi_auth';
 
-  function showLoginScreen() {
-    document.body.innerHTML = `
-      <div style="min-height:100vh;background:linear-gradient(135deg,#1a3a5c 0%,#2a5298 100%);display:flex;align-items:center;justify-content:center;font-family:'Hind Siliguri',sans-serif;">
-        <div style="background:white;border-radius:20px;padding:40px 36px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;">
-          <div style="font-size:48px;margin-bottom:12px;">🔐</div>
-          <h2 style="font-size:22px;font-weight:700;color:#1a3a5c;margin-bottom:6px;">কর্মী ব্যবস্থাপনা</h2>
-          <p style="font-size:13px;color:#6b7c93;margin-bottom:28px;">প্রবেশ করতে পাসওয়ার্ড দিন</p>
-          <input type="password" id="login-pass" placeholder="পাসওয়ার্ড লিখুন"
-            style="width:100%;padding:12px 16px;border:2px solid #d1dce8;border-radius:10px;font-family:'Hind Siliguri',sans-serif;font-size:15px;outline:none;margin-bottom:12px;text-align:center;letter-spacing:4px;"
-            onkeydown="if(event.key==='Enter')checkPassword()">
-          <div id="login-error" style="color:#e74c3c;font-size:13px;margin-bottom:10px;min-height:18px;"></div>
-          <button onclick="checkPassword()"
-            style="width:100%;padding:13px;background:linear-gradient(135deg,#1a3a5c,#2a5298);color:white;border:none;border-radius:10px;font-family:'Hind Siliguri',sans-serif;font-size:15px;font-weight:700;cursor:pointer;">
-            প্রবেশ করুন
-          </button>
-        </div>
-      </div>
-    `;
-    setTimeout(() => document.getElementById('login-pass')?.focus(), 100);
-  }
-
   window.checkPassword = function() {
     const val = document.getElementById('login-pass').value;
     if (val === PASSWORD) {
@@ -506,7 +485,28 @@
   };
 
   if (sessionStorage.getItem(SESSION_KEY) !== 'true') {
-    document.addEventListener('DOMContentLoaded', showLoginScreen);
+    document.addEventListener('DOMContentLoaded', function() {
+      document.body.style.display = 'none';
+      document.body.innerHTML = `
+        <div style="min-height:100vh;background:linear-gradient(135deg,#1a3a5c 0%,#2a5298 100%);display:flex;align-items:center;justify-content:center;font-family:'Hind Siliguri',sans-serif;">
+          <div style="background:white;border-radius:20px;padding:40px 36px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3);text-align:center;">
+            <div style="font-size:48px;margin-bottom:12px;">🔐</div>
+            <h2 style="font-size:22px;font-weight:700;color:#1a3a5c;margin-bottom:6px;">কর্মী ব্যবস্থাপনা</h2>
+            <p style="font-size:13px;color:#6b7c93;margin-bottom:28px;">প্রবেশ করতে পাসওয়ার্ড দিন</p>
+            <input type="password" id="login-pass" placeholder="পাসওয়ার্ড লিখুন"
+              style="width:100%;padding:12px 16px;border:2px solid #d1dce8;border-radius:10px;font-family:'Hind Siliguri',sans-serif;font-size:15px;outline:none;margin-bottom:12px;text-align:center;letter-spacing:4px;"
+              onkeydown="if(event.key==='Enter')checkPassword()">
+            <div id="login-error" style="color:#e74c3c;font-size:13px;margin-bottom:10px;min-height:18px;"></div>
+            <button onclick="checkPassword()"
+              style="width:100%;padding:13px;background:linear-gradient(135deg,#1a3a5c,#2a5298);color:white;border:none;border-radius:10px;font-family:'Hind Siliguri',sans-serif;font-size:15px;font-weight:700;cursor:pointer;">
+              প্রবেশ করুন
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.style.display = 'block';
+      document.getElementById('login-pass').focus();
+    });
   }
 })();
 const API_URL = 'https://script.google.com/macros/s/AKfycbzjHQWj07GptWopZUycHNZnvXGvlruu7uESyguXisIP4MhpXlJEYVtqccSA2ft8bvP2/exec';
